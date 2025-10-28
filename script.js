@@ -1,36 +1,70 @@
-// Smooth scrolling for navigation links
+// ============================================
+// Mobile Menu Toggle
+// ============================================
 document.addEventListener('DOMContentLoaded', function() {
-    // Get all navigation links
-    const navLinks = document.querySelectorAll('.nav-menu a[href^="#"]');
-    
-    // Add smooth scrolling to each link
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    const navLinks = document.querySelectorAll('.nav-menu a');
+
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+            
+            // Animate menu toggle
+            menuToggle.classList.toggle('active');
+        });
+    }
+
+    // Close menu when clicking on a link
     navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function() {
+            navMenu.classList.remove('active');
+            menuToggle.classList.remove('active');
+        });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!menuToggle.contains(e.target) && !navMenu.contains(e.target)) {
+            navMenu.classList.remove('active');
+            menuToggle.classList.remove('active');
+        }
+    });
+
+    // ============================================
+    // Smooth Scrolling for Navigation Links
+    // ============================================
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
             e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
             
-            const targetId = this.getAttribute('href');
-            const targetSection = document.querySelector(targetId);
-            
-            if (targetSection) {
-                // Smooth scroll to target section
-                targetSection.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
+            if (target) {
+                const offsetTop = target.offsetTop - 80;
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
                 });
-                
-                // Update active navigation state
-                updateActiveNav(this);
             }
         });
     });
-    
-    // Update active navigation based on scroll position
+
+    // ============================================
+    // Active Navigation on Scroll
+    // ============================================
+    const sections = document.querySelectorAll('section[id]');
+    const navbar = document.querySelector('.navbar');
+
     window.addEventListener('scroll', function() {
-        const sections = document.querySelectorAll('.section');
-        const navLinks = document.querySelectorAll('.nav-menu a[href^="#"]');
-        
+        // Add shadow to navbar on scroll
+        if (window.scrollY > 100) {
+            navbar.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.5)';
+        } else {
+            navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.3)';
+        }
+
+        // Update active navigation
         let current = '';
-        
         sections.forEach(section => {
             const sectionTop = section.offsetTop;
             const sectionHeight = section.clientHeight;
@@ -39,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 current = section.getAttribute('id');
             }
         });
-        
+
         navLinks.forEach(link => {
             link.classList.remove('active');
             if (link.getAttribute('href') === `#${current}`) {
@@ -47,24 +81,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // Function to update active navigation
-    function updateActiveNav(activeLink) {
-        // Remove active class from all links
-        document.querySelectorAll('.nav-menu a').forEach(link => {
-            link.classList.remove('active');
-        });
-        
-        // Add active class to clicked link
-        activeLink.classList.add('active');
-    }
-    
-    // Add scroll reveal animation for sections
+
+    // ============================================
+    // Fade In Animation on Scroll
+    // ============================================
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
-    
+
     const observer = new IntersectionObserver(function(entries) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -73,16 +98,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }, observerOptions);
-    
-    // Observe all sections for animation
+
+    // Observe sections
     document.querySelectorAll('.section').forEach(section => {
         section.style.opacity = '0';
         section.style.transform = 'translateY(30px)';
         section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(section);
     });
-    
-    // Add hover effects for equipment cards
+
+    // ============================================
+    // Equipment Cards Hover Effect
+    // ============================================
     const equipmentCards = document.querySelectorAll('.equipment-card');
     
     equipmentCards.forEach(card => {
@@ -94,116 +121,66 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = 'translateY(0) scale(1)';
         });
     });
+
+    // ============================================
+    // Gallery Items Animation
+    // ============================================
+    const galleryItems = document.querySelectorAll('.gallery-item');
     
-    // Add loading animation for header image
-    const headerImage = document.getElementById('headerImage');
-    if (headerImage) {
-        headerImage.style.opacity = '0';
-        headerImage.style.transition = 'opacity 1s ease';
-        
-        headerImage.addEventListener('load', function() {
-            this.style.opacity = '1';
+    galleryItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px) scale(1.02)';
         });
-    }
-    
-    // Add scroll-triggered header effect
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // ============================================
+    // Parallax Effect for Hero Section
+    // ============================================
     window.addEventListener('scroll', function() {
-        const headerImage = document.querySelector('.header-image');
         const scrolled = window.pageYOffset;
-        const rate = scrolled * -0.5;
+        const hero = document.querySelector('.hero');
         
-        if (headerImage) {
-            headerImage.style.transform = `translateY(${rate}px)`;
+        if (hero && scrolled < window.innerHeight) {
+            hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            hero.style.opacity = 1 - (scrolled / window.innerHeight) * 0.5;
         }
     });
-    
-    // Add mobile menu toggle functionality
-    const navMenu = document.querySelector('.nav-menu');
-    const navToggle = document.createElement('button');
-    navToggle.className = 'nav-toggle';
-    navToggle.innerHTML = '☰';
-    navToggle.style.display = 'none';
-    
-    // Insert toggle button before navigation
-    navMenu.parentNode.insertBefore(navToggle, navMenu);
-    
-    // Add toggle functionality
-    navToggle.addEventListener('click', function() {
-        navMenu.classList.toggle('nav-open');
-    });
-    
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.main-nav')) {
-            navMenu.classList.remove('nav-open');
+
+    // ============================================
+    // Dynamic Background Opacity
+    // ============================================
+    window.addEventListener('scroll', function() {
+        const scrollProgress = window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight);
+        const overlay = document.body;
+        
+        if (overlay) {
+            const opacity = 0.4 + scrollProgress * 0.3;
+            overlay.style.setProperty('--overlay-opacity', opacity);
         }
     });
+
+    // ============================================
+    // Button Hover Effects
+    // ============================================
+    const buttons = document.querySelectorAll('.btn');
     
-    // Show/hide mobile toggle based on screen size
-    function checkScreenSize() {
-        if (window.innerWidth <= 768) {
-            navToggle.style.display = 'block';
-            navMenu.classList.add('mobile-nav');
-        } else {
-            navToggle.style.display = 'none';
-            navMenu.classList.remove('mobile-nav', 'nav-open');
-        }
-    }
-    
-    // Check on load and resize
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
+    buttons.forEach(button => {
+        button.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-3px)';
+        });
+        
+        button.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // ============================================
+    // Console Log for Testing
+    // ============================================
+    console.log('Wild Outdoors website loaded successfully!');
+    console.log('Welcome to our premium hunting and fishing shop.');
 });
-
-// Add CSS for mobile navigation
-const mobileNavCSS = `
-    @media (max-width: 768px) {
-        .nav-toggle {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .mobile-nav {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: #2c5530;
-            flex-direction: column;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-        }
-        
-        .mobile-nav.nav-open {
-            display: flex;
-        }
-        
-        .mobile-nav li {
-            width: 100%;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .mobile-nav a {
-            padding: 1rem 2rem;
-            text-align: center;
-        }
-    }
-`;
-
-// Inject mobile navigation CSS
-const style = document.createElement('style');
-style.textContent = mobileNavCSS;
-document.head.appendChild(style);
-
-
-
-
-
